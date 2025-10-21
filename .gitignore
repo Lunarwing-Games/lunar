@@ -1,3 +1,17 @@
 thirdparty/
+.deps/imgui
+.deps/lua
+.deps/sdl
 .vscode/
 build/
+
+*.obj
+*.ilk
+*.exp
+*.dll
+*.lib
+*.exe
+*.out
+*.asm
+*.S
+*.s
