@@ -11,11 +11,13 @@
  *       are defined at config time with the provided CMakeLists.txt.
  */
 
+#include <string>
+
 #ifndef __cplusplus
     #error "Lunar MUST be compiled with a C++ compiler!"
 #endif
 
-#if __cplusplus <= 202002L || (defined(_MSVC_LANG) && _MSVC_LANG >= 202002L)
+#if __cplusplus < 202002L || !(defined(_MSVC_LANG) && _MSVC_LANG >= 202002L)
     #error "Lunar requires C++20 at the minimum!"
 #endif
 
