@@ -11,11 +11,11 @@ namespace Lunar
     /// @brief Verbosity & severity levels.
     enum class LogLevel
     {
-        Trace,  ///< Diagnostic, detailed trace info.
-        Info,   ///< General information.
-        Warn,   ///< Non-fatal warnings that may need attention.
-        Error,  ///< Errors that may prevent typical functions.
-        Fatal,  ///< Fatal errors that tend to stop execution.
+        Trace,  /// Diagnostic, detailed trace info.
+        Info,   /// General information.
+        Warn,   /// Non-fatal warnings that may need attention.
+        Error,  /// Errors that may prevent typical functions.
+        Fatal,  /// Fatal errors that tend to stop execution.
     };
 
     /// @brief Humanizes and stringifies log levels
