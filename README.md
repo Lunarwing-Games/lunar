@@ -19,7 +19,7 @@
 Welcome to the *canonical* repository for **Lunar**, the in-house game development framework used by [Lunarwing Games](https://github.com/Lunarwing-Games).  
 Lunar is written in modern C++ and supports optional **Lua scripting** for game logic.  
 
-While optimized for **2D development** by default, Lunar is capable of **3D rendering** and general-purpose multimedia applications.
+While optimized for **2D development** by default, Lunar is capable of **3D rendering** for games development.
 
 ## Features
 
