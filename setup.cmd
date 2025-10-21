@@ -40,5 +40,6 @@ cl /O2 /W3 /LD l*.c -Dlua_build_as_DLL -DLUA_BUILD_AS_DLL -o lua.dll
 xcopy /E /I /Y ".\lua.h" "..\..\thirdparty\lua\lua.h"
 xcopy /E /I /Y ".\lauxlib.h" "..\..\thirdparty\lua\lauxlib.h"
 xcopy /E /I /Y ".\lualib.h" "..\..\thirdparty\lua\lualib.h"
+xcopy /E /I /Y ".\luaconf.h" "..\..\thirdparty\lua\luaconf.h"
 xcopy /E /I /Y ".\lua.dll" "..\..\thirdparty\lua\lua.dll"
 xcopy /E /I /Y ".\lua.lib" "..\..\thirdparty\lua\lua.lib"

@@ -48,6 +48,7 @@ if [[ "$(uname)" == "Darwin" ]]; then
     cp -v "$LUA_PREFIX/include/lua/lua.h" thirdparty/lua/
     cp -v "$LUA_PREFIX/include/lua/lualib.h" thirdparty/lua/
     cp -v "$LUA_PREFIX/include/lua/lauxlib.h" thirdparty/lua/
+    cp -v "$LUA_PREFIX/include/lua/luaconf.h" thirdparty/lua
     sudo cp -v "$LUA_PREFIX/lib/liblua.dylib" thirdparty/lua/
 
 else
@@ -56,7 +57,7 @@ else
     pushd .deps/lua > /dev/null
 
     make
-    cp -v lua.h lauxlib.h lualib.h ../../thirdparty/lua/
+    cp -v lua.h lauxlib.h lualib.h luaconf.h ../../thirdparty/lua/
     cp -v liblua.so ../../thirdparty/lua/
 
     popd > /dev/null

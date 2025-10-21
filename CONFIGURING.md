@@ -5,11 +5,11 @@ Lunar uses **CMake** as its build system. This document outlines the common conf
 ## Prerequisites
 
 Before configuring the build, ensure you have the following installed and ready:
- - **CMake** $$\geq$$ 3.20
+ - **CMake** $\geq$ 3.20
  - A **C++20** compatible compiler
-    * GCC $$\geq$$ 8
+    * GCC $\geq$ 8
     * Clang partially supports C++20
-    * MSVC $$\geq$$ 16.11
+    * MSVC $\geq$ 16.11
 
 ## Configuring and Building
 
@@ -42,4 +42,3 @@ The build type of `RelWithDebInfo` is specifically not supported by this project
 | `LUNAR_PEDANTIC_COMP` | `OFF` | Highest level of compilation warnings. |
 | `LUNAR_ERROR_ON_WARN` | `OFF` | Treats warnings as errors. `-Werror` or `/WX` |
 | `LUNAR_BUILD_TESTS` | `OFF` | Builds the framework and a suite of tests. |
-| `LUNAR_BUILD_WORKERS` | `1` | Amount of threads/jobs to use for building. |
