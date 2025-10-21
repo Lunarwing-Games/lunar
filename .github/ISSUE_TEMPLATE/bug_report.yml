@@ -1,0 +1,49 @@
+name: "Bug Report"
+description: Report something that isn't working as intended
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug!  
+        Please fill out the details below so we can fix it quickly.
+  - type: input
+    id: version
+    attributes:
+      label: Lunar version
+      description: Which version or commit hash are you using?
+      placeholder: "e.g., 0.1.0-alpha"
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: What happened? What did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce the issue?
+      placeholder: |
+        1. ...
+        2. ...
+        3. ...
+  - type: dropdown
+    id: platform
+    attributes:
+      label: Platform
+      multiple: true
+      options:
+        - Windows
+        - macOS
+        - Linux
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Paste any console output or Lunar logs here (if any).
+      render: shell

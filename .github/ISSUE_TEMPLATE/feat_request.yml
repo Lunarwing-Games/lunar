@@ -1,0 +1,27 @@
+name: "Feature Request"
+description: Suggest a new feature or improvement for Lunar
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Have a cool idea? Let us know what you'd like to see in Lunar!
+  - type: input
+    id: feature_name
+    attributes:
+      label: Feature name
+      placeholder: "Short descriptive title"
+    validations:
+      required: true
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Why?
+      description: What problem does this feature solve or what would it improve?
+  - type: textarea
+    id: details
+    attributes:
+      label: Details
+      description: How might this work, in your opinion?
+      placeholder: "Example APIs, behavior, or mockups"
