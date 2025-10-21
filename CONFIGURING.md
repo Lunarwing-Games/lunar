@@ -1,5 +1,5 @@
 # Configuring Lunar
-
+<!-- I can't wait for this project to balloon in complexity! -->
 Lunar uses **CMake** as its build system. This document outlines the common configuration options and environment variables for building the framework.
 
 ## Prerequisites

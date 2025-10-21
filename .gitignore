@@ -4,6 +4,7 @@ thirdparty/
 .deps/sdl
 .vscode/
 build/
+docs/
 
 *.obj
 *.ilk

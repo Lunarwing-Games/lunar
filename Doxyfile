@@ -1,1 +1,63 @@
 # Lunar doxyfile for documentation generation
+
+PROJECT_NAME           = "Lunar"
+PROJECT_NUMBER         = 0.1.0
+PROJECT_BRIEF          = "A modular C++20 game development framework."
+OUTPUT_DIRECTORY       = docs/build
+CREATE_SUBDIRS         = NO
+OUTPUT_LANGUAGE        = English
+EXTRACT_ALL            = YES
+
+INPUT                  = include src
+FILE_PATTERNS          = *.hpp *.cpp *.h
+RECURSIVE              = YES
+EXCLUDE_PATTERNS       = */thirdparty/*
+EXCLUDE_SYMBOLS        = main
+STRIP_FROM_PATH        = ${PROJECT_SOURCE_DIR}
+
+EXTRACT_PRIVATE        = NO
+EXTRACT_STATIC         = YES
+EXTRACT_LOCAL_CLASSES  = YES
+EXTRACT_ANON_NSPACES   = NO
+SOURCE_BROWSER         = YES
+INLINE_SOURCES         = NO
+STRIP_CODE_COMMENTS    = NO
+REFERENCED_BY_RELATION = YES
+REFERENCES_RELATION    = YES
+
+GENERATE_HTML          = YES
+HTML_OUTPUT            = html
+GENERATE_LATEX         = NO
+GENERATE_XML           = NO
+GENERATE_MAN           = NO
+HTML_TIMESTAMP         = NO
+USE_MDFILE_AS_MAINPAGE = README.md
+
+MARKDOWN_SUPPORT       = YES
+AUTOLINK_SUPPORT       = YES
+USE_MATHJAX            = NO
+ALIASES                = "module=\par **Module:**"
+
+GENERATE_TREEVIEW      = YES
+FULL_SIDEBAR           = YES
+DISABLE_INDEX          = NO
+SHOW_USED_FILES        = NO
+SHOW_FILES             = NO
+SHOW_NAMESPACES        = YES
+SHOW_INCLUDE_FILES     = YES
+
+WARN_IF_UNDOCUMENTED   = YES
+WARN_IF_DOC_ERROR      = YES
+WARN_NO_PARAMDOC       = YES
+WARN_LOGFILE           = docs/doxygen_warnings.log
+
+# HAVE_DOT               = YES
+# DOT_IMAGE_FORMAT       = svg
+# CALL_GRAPH             = YES
+# CALLER_GRAPH           = YES
+# DOT_TRANSPARENT        = YES
+# INTERACTIVE_SVG        = YES
+
+QUIET                  = NO
+WARNINGS               = YES
+JAVADOC_AUTOBRIEF      = YES

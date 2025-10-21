@@ -20,7 +20,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Fun compile options
 option(LUNAR_INTERNAL_LOGGING "Verbose internal logging subsystem." OFF)
-option(LUNAR_SCRIPT_MODULE "Lua module." OFF)
+option(LUNAR_SCRIPT_MODULE "Lua module." ON)
 option(LUNAR_LOGGING_MODULE "Log module for end-users." ON)
 option(LUNAR_2DREND_MODULE "2D rendering module." ON)
 option(LUNAR_3DREND_MODULE "3D rendering module." ON)
@@ -28,11 +28,6 @@ option(LUNAR_ECS_MODULE "Entity component system module." ON)
 option(LUNAR_PEDANTIC_COMPILE "Enables highest level of compilation warnings" OFF)
 option(LUNAR_ERROR_ON_WARN "Treats all warnings as errors." OFF)
 option(LUNAR_BUILD_TESTS "Builds tests for Lunar." OFF)
-option(LUNAR_BUILD_WORKERS "1" CACHE STRING "Sets the amount of threads to use for compilation." )
-
-if(LUNAR_BUILD_WORKERS GREATER 1)
-    set(CMAKE_BUILD_PARALLEL_LEVEL ${LUNAR_BUILD_WORKERS})
-endif()
 
 if(LUNAR_PEDANTIC_COMPILE)
     message(STATUS "Setting pedantic compilation...")
@@ -53,10 +48,10 @@ if(LUNAR_ERROR_ON_WARN)
     endif()
 endif()
 
-add_subdirectory(thirdparty/SDL3)
-add_subdirectory(thirdparty/lua)
-add_subdirectory(thirdparty/dear_imgui)
-add_subdirectory(thirdparty/glad)
+set(IMGUI_DIR "${CMAKE_SOURCE_DIR}/thirdparty/imgui")
+set(SDL_DIR "${CMAKE_SOURCE_DIR}/thirdparty/sdl3")
+set(LUA_DIR "${CMAKE_SOURCE_DIR}/thirdparty/lua")
+find_package(OpenGL REQUIRED)
 
 #
 # Files, conditional modules
@@ -189,42 +184,121 @@ if(LUNAR_PEDANTIC_COMPILE AND NOT MSVC)
 endif()
 
 #
-# Actual compilation/linking steps!
+# Dependency hell
 #
 
-if(TARGET SDL3::SDL3)
-    target_link_libraries(Lunar PUBLIC SDL3::SDL3)
-elseif(TARGET SDL3)
-    target_link_libraries(Lunar PUBLIC SDL3)
+find_package(OpenGL REQUIRED)
+
+set(SDL3_INC "${SDL_DIR}/include")
+
+set(_SDL3_CANDIDATES
+    "${SDL_DIR}/libSDL3.dylib"
+    "${SDL_DIR}/SDL3.dll"
+    "${SDL_DIR}/SDL3.lib"
+    "${SDL_DIR}/libSDL3.so"
+)
+set(_SDL3_LIB "")
+foreach(cand IN LISTS _SDL3_CANDIDATES)
+    if(EXISTS "${cand}")
+        set(_SDL3_LIB "${cand}")
+        break()
+    endif()
+endforeach()
+
+if(NOT _SDL3_LIB)
+    message(FATAL_ERROR "Could not find a prebuilt SDL3 library in ${SDL_DIR}. "
+                        "Expected one of: libSDL3.dylib, SDL3.dll/.lib, libSDL3.so")
 endif()
 
-if(LUNAR_SCRIPT_MODULE AND TARGET lua)
-    target_link_libraries(Lunar PUBLIC lua)
-endif()
-
-if(TARGET imgui)
-    target_link_libraries(Lunar PUBLIC imgui)
-endif()
-
-if(TARGET glad)
-    target_link_libraries(Lunar PUBLIC glad)
-endif()
-
-install(TARGETS Lunar
-    EXPORT LunarTargets
-    ARCHIVE DESTINATION lib
-    LIBRARY DESTINATION lib
-    # RUNTIME DESTINATION bin
-    # We don't need a runtime, this is a lib, not an app
+add_library(SDL3::SDL3 UNKNOWN IMPORTED)
+set_target_properties(SDL3::SDL3 PROPERTIES
+    IMPORTED_LOCATION "${_SDL3_LIB}"
+    INTERFACE_INCLUDE_DIRECTORIES "${SDL3_INC}"
 )
 
-install(DIRECTORY include/ DESTINATION include)
+if(APPLE AND _SDL3_LIB MATCHES "\\.dylib$")
+    # nothing extra needed; CMake will link the dylib path
+endif()
 
-install(EXPORT LunarTargets
-    FILE LunarTargets.cmake
-    NAMESPACE Lunar::
-    DESTINATION lib/cmake/Lunar
+set(LUA_INC "${LUA_DIR}")
+set(_LUA_CANDIDATES
+    "${LUA_DIR}/liblua.dylib"
+    "${LUA_DIR}/lua.dll"
+    "${LUA_DIR}/lua.lib"
+    "${LUA_DIR}/liblua.so"
 )
+set(_LUA_LIB "")
+foreach(cand IN LISTS _LUA_CANDIDATES)
+    if(EXISTS "${cand}")
+        set(_LUA_LIB "${cand}")
+        break()
+    endif()
+endforeach()
+
+if(LUNAR_SCRIPT_MODULE AND NOT _LUA_LIB)
+    message(FATAL_ERROR "LUNAR_SCRIPT_MODULE=ON but no Lua library found in ${LUA_DIR}. "
+                        "Expected one of: liblua.dylib, lua.dll/.lib, liblua.so")
+endif()
+
+if(_LUA_LIB)
+    add_library(Lua::Lua UNKNOWN IMPORTED)
+    set_target_properties(Lua::Lua PROPERTIES
+        IMPORTED_LOCATION "${_LUA_LIB}"
+        INTERFACE_INCLUDE_DIRECTORIES "${LUA_INC}"
+    )
+endif()
+
+set(IMGUI_CORE_SRC
+    "${IMGUI_DIR}/imgui.cpp"
+    "${IMGUI_DIR}/imgui_draw.cpp"
+    "${IMGUI_DIR}/imgui_tables.cpp"
+    "${IMGUI_DIR}/imgui_widgets.cpp"
+)
+set(IMGUI_BACKENDS_SRC "")
+if(LUNAR_2DREND_MODULE OR LUNAR_3DREND_MODULE)
+    list(APPEND IMGUI_BACKENDS_SRC
+        "${IMGUI_DIR}/backends/imgui_impl_sdl3.cpp"
+        "${IMGUI_DIR}/backends/imgui_impl_opengl2.cpp"
+    )
+endif()
+
+add_library(imgui STATIC ${IMGUI_CORE_SRC} ${IMGUI_BACKENDS_SRC})
+add_library(ImGui::imgui ALIAS imgui)
+
+target_include_directories(imgui PUBLIC
+    "${IMGUI_DIR}"
+    "${IMGUI_DIR}/backends"
+)
+
+if(LUNAR_2DREND_MODULE OR LUNAR_3DREND_MODULE)
+    target_link_libraries(imgui PRIVATE SDL3::SDL3 OpenGL::GL)
+    if(APPLE)
+    endif()
+endif()
+
+target_link_libraries(Lunar
+    PRIVATE
+        SDL3::SDL3
+        ImGui::imgui
+)
+
+if(LUNAR_2DREND_MODULE OR LUNAR_3DREND_MODULE)
+    target_link_libraries(Lunar PRIVATE OpenGL::GL)
+endif()
+
+if(LUNAR_SCRIPT_MODULE AND TARGET Lua::Lua)
+    target_link_libraries(Lunar PRIVATE Lua::Lua)
+endif()
+
+if(UNIX AND NOT APPLE)
+    find_package(Threads REQUIRED)
+    target_link_libraries(Lunar PRIVATE Threads::Threads)
+endif()
+
+
+#
+# Actual compilation/linking steps!
+#
 
 include(CMakePackageConfigHelpers)
 
@@ -232,12 +306,6 @@ write_basic_package_version_file(
     "${CMAKE_CURRENT_BINARY_DIR}/LunarConfigVersion.cmake"
     VERSION ${PROJECT_VERSION}
     COMPATIBILITY SameMajorVersion
-)
-
-configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/LunarConfig.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/LunarConfig.cmake"
-    @ONLY
 )
 
 install(FILES
@@ -249,7 +317,7 @@ install(FILES
 message(STATUS "")
 message(STATUS "====================================")
 message(STATUS " Lunar Configuration Summary")
-message(STATUS "------------------------------------")
+message(STATUS "====================================")
 message(STATUS " Version:            ${PROJECT_VERSION}")
 message(STATUS " Platform:           ${LUNAR_PLATFORM}")
 message(STATUS " Compiler:           ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
@@ -260,6 +328,5 @@ message(STATUS "   Logging:          ${LUNAR_LOGGING_MODULE}")
 message(STATUS "   2D Renderer:      ${LUNAR_2DREND_MODULE}")
 message(STATUS "   3D Renderer:      ${LUNAR_3DREND_MODULE}")
 message(STATUS "   ECS:              ${LUNAR_ECS_MODULE}")
-message(STATUS " Vendor Only:        ${LUNAR_VENDOR_ONLY}")
 message(STATUS "====================================")
 message(STATUS "")
