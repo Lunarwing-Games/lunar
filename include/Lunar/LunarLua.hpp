@@ -4,16 +4,17 @@
 #include "lauxlib.h"
 #include <string>
 #include <vector>
+#include <cstdio>
 
 namespace Lunar::Lua
 {
     enum class LInitFlags : uint32_t
     {
-        None         = 0,
-        BindECS      = 1 << 0,
-        BindRender2D = 1 << 1,
-        BindRender3D = 1 << 2,
-        BindLogging  = 1 << 3,
+        None         = 0,       /// Bind nothing to Lua's VM
+        BindECS      = 1 << 0,  /// Flag to bind the ECS module to Lua
+        BindRender2D = 1 << 1,  /// Flag to bind the 2D renderer to Lua
+        BindRender3D = 1 << 2,  /// Flag to bind the 3D renderer to Lua
+        BindLogging  = 1 << 3,  /// Flag to bind the logger (external) to Lua
     };
 
     inline LInitFlags operator|(LInitFlags a, LInitFlags b)
@@ -39,11 +40,16 @@ namespace Lunar::Lua
     /// @return True on success, false on failure.
     bool RunFile(const std::string &filepath);
 
-    /// @brief 
-    /// @return 
+    /// @brief Executes Lua code immediately.
+    /// @param code The Lua source code to exec.
+    /// @return True on LUA_OK, false on error
+    bool RunString(const std::string &code);
+
+    /// @brief Gets the current state of Lua
+    /// @return A pointer to the `lua_State`
     lua_State *GetState() noexcept;
 
-    /// @brief 
+    /// @brief Reset the Lua VM 
     void ResetState();
 
     /// @brief **Internal** function to bind the ECS module to Lua if req'd by the user.

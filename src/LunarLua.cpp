@@ -3,10 +3,13 @@
 namespace Lunar::Lua
 {
     static lua_State *L = nullptr;
+    static LInitFlags s_lastFlags = LInitFlags::None;
 
     bool Init(LInitFlags flags)
     {
         if (L) return false;    // VM already exists
+        s_lastFlags = flags;
+
         L = luaL_newstate();
         if (!L) return false;   // VM creation error
 
@@ -23,27 +26,56 @@ namespace Lunar::Lua
         if (flags & LInitFlags::BindRender2D) __BindRender2D();
         if (flags & LInitFlags::BindRender3D) __BindRender3D();
         if (flags & LInitFlags::BindLogging) __BindLogging();
-
+        
         return true;
     }
 
     void Shutdown() {
-    if (!L) return;
-    lua_close(L);
-    L = nullptr;
+        if (!L) return;
+        lua_close(L);
+        L = nullptr;
     }
 
     bool RunFile(const std::string &filepath)
     {
         if (!L) return false;
-        return luaL_dofile(L, filepath.c_str()) == LUA_OK;
+        
+        
+        int status = luaL_dofile(L, filepath.c_str());
+        if (status != LUA_OK)
+        {
+            const char *err = lua_tostring(L, -1);
+            // fprintf logging is temp until we get the logging module working
+            fprintf(stderr, "[LUA] Error running file '%s': %s\n",
+                    filepath.c_str(), err ? err : "(undefined)");
+            lua_pop(L, 1);
+            return false;
+        }
+        return true;
+    }
+
+    bool RunString(const std::string &code)
+    {
+        if (!L) return false;
+
+        int status = luaL_dostring(L, code.c_str());
+        if (status != LUA_OK)
+        {
+            const char *err = lua_tostring(L, -1);
+            // fprintf logging is temp until we get the logging module working
+            fprintf(stderr, "[LUA] Error executing code: %s\n",
+                    err ? err : "(undefined)");
+            lua_pop(L, 1);
+            return false;
+        }
+        return true;
     }
 
     lua_State *GetState() noexcept { return L; }
 
     void ResetState() {
         Shutdown();
-        Init();
+        Init(s_lastFlags);
     }
 
     void __BindECS() { /* placeholder */ }

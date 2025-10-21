@@ -2,10 +2,15 @@
 
 /** Welcome to the main header for Lunar!
  * 
- * If you're looking for documentation...you can build them yourself 
+ * If you're looking for complete documentation...you can build them yourself 
  * if you have doxygen installed and ready on your system. If this is a
  * pre-built release of Lunar, a pre-made set of docs can be found in the
  * provided "DOCS" directory.
+ * 
+ * If you are using the latest commit and have internet access, docs are
+ * easily accessible at the organizations website!
+ * 
+ * permalink -> https://lunarwing-games.github.io
  * 
  * NOTE: You do NOT need to define any macros to use Lunar. These macros
  *       are defined at config time with the provided CMakeLists.txt.
