@@ -26,10 +26,9 @@ Lunar supports most of the basic build types;
 | Debug | No optimizations, debug symbols. |
 | Release | Very optimized, stripped of symbols. |
 | MinSizeRel | Size-optimized library with release optimization. |
+| RelWithDebInfo | Release config with debug symbols. |
 
-The build type of `RelWithDebInfo` is specifically not supported by this project.
-
-### Common CMake Options
+### CMake Options
 
 | Options | Default | Description |
 | ------- | ------- | ----------- |
