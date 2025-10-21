@@ -67,3 +67,13 @@ Lunar is licensed under the [GNU Lesser General Public License v2.1 (LGPL-2.1)](
 This means you can use and link Lunar in both **open and closed-source projects**, provided that any modifications to the Lunar framework itself are shared under the same license.
 
 <sub>© 2025 Lunarwing Games. All rights reserved.</sub>
+
+## Third-Parties
+
+Lunar uses the following open-source software:
+ * Lua $\rightarrow$ MIT license $\rightarrow$ © 1994–2025 PUC-Rio, [lua.org](https://lua.org)
+ * SDL3 $\rightarrow$ zlib license $\rightarrow$ © 1997–2025 Sam Lantinga
+ * ImGui $\rightarrow$ MIT license $\rightarrow$ © 2014–2025 Ocornut
+
+Licenses for the aforementioned softwares are available in the `/licenses/` directory.
+
