@@ -59,6 +59,7 @@ endif()
 # 
 
 include(FetchContent)
+include(CheckIncludeFile)
 
 macro(lunar_fetch name repo tag)
     message(STATUS "Fetching ${name} ...")
@@ -78,18 +79,36 @@ add_library(Lunar STATIC ${LUNAR_SRC})
 
 target_include_directories(Lunar PUBLIC include thirdparty)
 
+target_compile_definitions(Lunar PUBLIC
+    LUNAR_VERSION_STRING="${VERSION}"
+)
+
 if(LUNAR_SCRIPT_MODULE)
-    target_compile_definitions(Lunar PUBLIC LUNAR_ENABLE_SCRIPT)
+    target_compile_definitions(Lunar PUBLIC LUNAR_LUA_ENABLED)
 endif()
 if(LUNAR_LOGGING_MODULE)
-    target_compile_definitions(Lunar PUBLIC LUNAR_ENABLE_LOG)
+    target_compile_definitions(Lunar PUBLIC LUNAR_LOG_ENABLED)
 endif()
 if(LUNAR_2DREND_MODULE)
-    target_compile_definitions(Lunar PUBLIC LUNAR_ENABLE_2D)
+    target_compile_definitions(Lunar PUBLIC LUNAR_2DRENDER_ENABLED)
 endif()
 if(LUNAR_3DREND_MODULE)
-    target_compile_definitions(Lunar PUBLIC LUNAR_ENABLE_3D)
+    target_compile_definitions(Lunar PUBLIC LUNAR_3DRENDER_ENABLED)
 endif()
 if(LUNAR_ECS_MODULE)
-    target_compile_definitions(Lunar PUBLIC LUNAR_ENABLE_ECS)
+    target_compile_definitions(Lunar PUBLIC LUNAR_ECS_ENABLED)
 endif()
+if(LUNAR_INTERNAL_LOGGING)
+    target_compile_definitions(Lunar PUBLIC LUNAR_INTERNAL_LOGS_OK)
+    message(FATAL_ERROR "This is not yet implemented!")
+endif()
+if(LUNAR_VENDOR_ONLY)
+    message(FATAL_ERROR "This is not yet implemented!")
+endif()
+if(LUNAR_BUILD_TESTS)
+    message(FATAL_ERROR "This is not supported!")
+endif()
+
+#
+# Compiler / OS specific magic
+#

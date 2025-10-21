@@ -57,8 +57,7 @@ Check out our **[CONTRIBUTING](./CONTRIBUTING.md)** file for full guidelines.
 
 ## Security
 
-We take security seriously here, so if you come across one, **do not open a public issue.** \
-Please email us at `lunarwinggames@outlook.com` to disclose security issues, be as detailed as possible when disclosing issues of this nature.
+We take security seriously here. If you come across a potential security issue, **do not open a public issue.** Please email us at `lunarwinggames@outlook.com` to disclose security issues, be as detailed as possible when disclosing issues of this nature.
 
 Email responses can take up to one week for a response.
 
