@@ -64,7 +64,7 @@ Email responses can take up to one week for a response.
 
 ## Licensing
 
-Lunar is licensed under the [GNU Lesser General Public License v3.0 (LGPL-3.0)](./LICENSE). \
+Lunar is licensed under the [GNU Lesser General Public License v2.1 (LGPL-2.1)](./LICENSE). \
 This means you can use and link Lunar in both **open and closed-source projects**, provided that any modifications to the Lunar framework itself are shared under the same license.
 
 <sub>© 2025 Lunarwing Games. All rights reserved.</sub>
