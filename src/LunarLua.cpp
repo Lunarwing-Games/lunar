@@ -23,6 +23,8 @@ namespace Lunar::Lua
         if (flags & LInitFlags::BindRender2D) __BindRender2D();
         if (flags & LInitFlags::BindRender3D) __BindRender3D();
         if (flags & LInitFlags::BindLogging) __BindLogging();
+
+        return true;
     }
 
     void Shutdown() {
