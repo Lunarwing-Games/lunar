@@ -105,7 +105,7 @@ namespace Lunar
 
                 std::cerr << std::format("[{}] [{}::{}] {} ({}:{})\n",
                     ToString(level),
-                    DemangleTypeName((T).name()),
+                    DemangleTypeName(typeid(T).name()),
                     loc.function_name(),
                     msg,
                     loc.file_name(),
