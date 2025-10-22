@@ -1,7 +1,7 @@
 #pragma once
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
+// #include "lua.h"
+// #include "lualib.h"
+// #include "lauxlib.h"
 #include <string>
 #include <vector>
 #include <cstdio>
@@ -47,7 +47,7 @@ namespace Lunar::Lua
 
     /// @brief Gets the current state of Lua
     /// @return A pointer to the `lua_State`
-    lua_State *GetState() noexcept;
+    void GetState() noexcept;
 
     /// @brief Reset the Lua VM 
     void ResetState();
