@@ -9,7 +9,7 @@ cmake_minimum_required(VERSION 3.20)
 project(Lunar
     VERSION 0.1.0
     DESCRIPTION "A game development framework written in C++20."
-    LANGUAGES CXX
+    LANGUAGES C CXX
 )
 
 # Stuff with C++
@@ -20,7 +20,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Fun compile options
 option(LUNAR_INTERNAL_LOGGING "Verbose internal logging subsystem." OFF)
-option(LUNAR_SCRIPT_MODULE "Lua module." ON)
+option(LUNAR_SCRIPT_MODULE "Lua module." OFF)
 option(LUNAR_LOGGING_MODULE "Log module for end-users." ON)
 option(LUNAR_2DREND_MODULE "2D rendering module." ON)
 option(LUNAR_3DREND_MODULE "3D rendering module." ON)
@@ -232,32 +232,43 @@ if(APPLE AND _SDL3_LIB MATCHES "\\.dylib$")
     # nothing extra needed; CMake will link the dylib path
 endif()
 
-set(LUA_INC "${LUA_DIR}")
-set(_LUA_CANDIDATES
-    "${LUA_DIR}/liblua.dylib"
-    "${LUA_DIR}/lua.dll"
-    "${LUA_DIR}/lua.lib"
-    "${LUA_DIR}/liblua.so"
-)
-set(_LUA_LIB "")
-foreach(cand IN LISTS _LUA_CANDIDATES)
-    if(EXISTS "${cand}")
-        set(_LUA_LIB "${cand}")
-        break()
-    endif()
-endforeach()
+if(LUNAR_SCRIPT_MODULE)
+    set(LUA_INC "${LUA_DIR}")
 
-if(LUNAR_SCRIPT_MODULE AND NOT _LUA_LIB)
-    message(FATAL_ERROR "LUNAR_SCRIPT_MODULE=ON but no Lua library found in ${LUA_DIR}. "
-                        "Expected one of: liblua.dylib, lua.dll/.lib, liblua.so")
-endif()
-
-if(_LUA_LIB)
-    add_library(Lua::Lua UNKNOWN IMPORTED)
-    set_target_properties(Lua::Lua PROPERTIES
-        IMPORTED_LOCATION "${_LUA_LIB}"
-        INTERFACE_INCLUDE_DIRECTORIES "${LUA_INC}"
+    # Only accept static libs for link-time resolution
+    set(_LUA_CANDIDATES
+        "${LUA_DIR}/lua.lib"      # MSVC static or import for static
+        "${LUA_DIR}/liblua.a"     # mingw/clang
+        "${LUA_DIR}/liblua.so"    # *nix shared (still OK as link target)
+        "${LUA_DIR}/liblua.dylib" # macOS shared
     )
+    set(_LUA_LIB "")
+    foreach(cand IN LISTS _LUA_CANDIDATES)
+        if(EXISTS "${cand}")
+            set(_LUA_LIB "${cand}")
+            break()
+        endif()
+    endforeach()
+
+    if(_LUA_LIB)
+        message(STATUS "Using prebuilt static Lua library: ${_LUA_LIB}")
+        add_library(Lua::Lua UNKNOWN IMPORTED)
+        set_target_properties(Lua::Lua PROPERTIES
+            IMPORTED_LOCATION "${_LUA_LIB}"
+            INTERFACE_INCLUDE_DIRECTORIES "${LUA_INC}"
+        )
+        target_link_libraries(Lunar PUBLIC Lua::Lua)
+    else()
+        message(STATUS "No static Lua library found — building Lua from source (batteries included)")
+        file(GLOB LUA_SRC "${LUA_DIR}/*.c")
+        add_library(Lunar_Lua STATIC ${LUA_SRC})
+        # Make sure these are compiled as C sources and see the headers
+        set_target_properties(Lunar_Lua PROPERTIES LINKER_LANGUAGE C)
+        target_include_directories(Lunar_Lua PUBLIC ${LUA_DIR})
+        # If Lua needs special defines (usually not), add here:
+        # target_compile_definitions(Lunar_Lua PRIVATE LUA_USE_C89)
+        target_link_libraries(Lunar PUBLIC Lunar_Lua)
+    endif()
 endif()
 
 set(IMGUI_CORE_SRC
@@ -299,7 +310,7 @@ if(LUNAR_2DREND_MODULE OR LUNAR_3DREND_MODULE)
 endif()
 
 if(LUNAR_SCRIPT_MODULE AND TARGET Lua::Lua)
-    target_link_libraries(Lunar PRIVATE Lua::Lua)
+    target_link_libraries(Lunar PUBLIC Lua::Lua)
 endif()
 
 if(UNIX AND NOT APPLE)
