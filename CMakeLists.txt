@@ -62,7 +62,14 @@ find_package(OpenGL REQUIRED)
 file(GLOB_RECURSE LUNAR_SRC CONFIGURE_DEPENDS "src/*.cpp")
 add_library(Lunar STATIC ${LUNAR_SRC})
 
-target_include_directories(Lunar PUBLIC include)
+target_include_directories(Lunar
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/include>
+        $<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/thirdparty/glad>
+
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/Lunar>
+        $<INSTALL_INTERFACE:${CMAKE_INSTALL_INCLUDEDIR}/glad>
+)
 
 target_compile_definitions(Lunar PUBLIC
     LUNAR_VERSION_STRING="${PROJECT_VERSION}"
@@ -194,8 +201,6 @@ endif()
 
 find_package(OpenGL REQUIRED)
 
-target_include_directories(Lunar PUBLIC thirdparty/glad)
-
 set(SDL3_INC "${SDL_DIR}/include")
 
 set(_SDL3_CANDIDATES
@@ -286,7 +291,7 @@ endif()
 target_link_libraries(Lunar
     PRIVATE
         SDL3::SDL3
-        ImGui::imgui
+        glad
 )
 
 if(LUNAR_2DREND_MODULE OR LUNAR_3DREND_MODULE)
@@ -301,9 +306,6 @@ if(UNIX AND NOT APPLE)
     find_package(Threads REQUIRED)
     target_link_libraries(Lunar PRIVATE Threads::Threads)
 endif()
-
-
-target_link_libraries(Lunar PRIVATE glad)
 
 #
 # Actual compilation/linking steps!
@@ -341,3 +343,56 @@ message(STATUS "   Shaders:          ${LUNAR_SHADER_MODULE}")
 message(STATUS "====================================")
 message(STATUS "If shaders are ON, use GLSL Version 120!")
 message(STATUS "")
+
+include(GNUInstallDirs)
+include(CMakePackageConfigHelpers)
+
+# Install headers
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/include/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/Lunar
+        FILES_MATCHING PATTERN "*.hpp")
+
+# Bundle vendored 3rd-party headers
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/thirdparty/glad/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/glad
+        FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/thirdparty/sdl3/include/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/SDL3
+        FILES_MATCHING PATTERN "*.h")
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/thirdparty/lua/
+        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/lua
+        FILES_MATCHING PATTERN "*.h")
+
+# Lib install
+install(TARGETS Lunar
+    EXPORT LunarTargets
+    ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
+
+# Export pkg config
+install(EXPORT LunarTargets
+    FILE LunarTargets.cmake
+    NAMESPACE Lunar::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Lunar
+)
+
+# Generate config + version files
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/LunarConfigVersion.cmake"
+    VERSION ${PROJECT_VERSION}
+    COMPATIBILITY SameMajorVersion
+)
+
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/LunarConfig.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/LunarConfig.cmake"
+    @ONLY
+)
+
+install(FILES
+    "${CMAKE_CURRENT_BINARY_DIR}/LunarConfig.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/LunarConfigVersion.cmake"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/Lunar
+)

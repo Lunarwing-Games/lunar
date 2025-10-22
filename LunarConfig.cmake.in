@@ -1,0 +1,12 @@
+@PACKAGE_INIT@
+
+include("${CMAKE_CURRENT_LIST_DIR}/LunarTargets.cmake")
+
+include(CMakeFindDependencyMacro)
+find_dependency(OpenGL)
+find_dependency(Threads)
+
+message(STATUS "Found Lunar @PROJECT_VERSION@")
+
+set(LUNAR_INCLUDE_DIRS "@CMAKE_INSTALL_FULL_INCLUDEDIR@/Lunar")
+set(LUNAR_LIBRARIES Lunar)

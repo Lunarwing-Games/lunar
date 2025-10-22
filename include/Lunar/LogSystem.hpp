@@ -3,7 +3,38 @@
 #include <source_location>
 #include <string_view>
 #include <format>
+#include <string>
 #include <typeinfo>
+
+#if defined(_MSC_VER)
+    #include <Windows.h>
+    #include <Dbghelp.h>
+    #pragma comment(lib, "Dbghelp.lib")
+#elif defined(__GNUG__)
+    #include <cxxabi.h>
+    #include <cstdlib>
+#endif
+
+namespace Lunar
+{
+    inline std::string DemangleTypeName(const char *name)
+    {
+    #if defined(_MSC_VER)
+        char buffer[512];
+        if (UnDecorateSymbolName(name, buffer, sizeof(buffer), UNDNAME_COMPLETE))
+            return buffer;
+        return name;
+    #elif defined(__GNUG__)
+        int status = 0;
+        char* demangled = abi::__cxa_demangle(name, nullptr, nullptr, &status);
+        std::string result = (status == 0 && demangled) ? demangled : name;
+        std::free(demangled);
+        return result;
+    #else
+        return name;
+    #endif
+    }
+}
 
 namespace Lunar
 {
@@ -74,7 +105,7 @@ namespace Lunar
 
                 std::cerr << std::format("[{}] [{}::{}] {} ({}:{})\n",
                     ToString(level),
-                    typeid(T).name(),
+                    DemangleTypeName((T).name()),
                     loc.function_name(),
                     msg,
                     loc.file_name(),
