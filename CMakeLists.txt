@@ -52,6 +52,7 @@ endif()
 set(IMGUI_DIR "${CMAKE_SOURCE_DIR}/thirdparty/imgui")
 set(SDL_DIR "${CMAKE_SOURCE_DIR}/thirdparty/sdl3")
 set(LUA_DIR "${CMAKE_SOURCE_DIR}/thirdparty/lua")
+set(GLAD_DIR "${CMAKE_SOURCE_DIR}/thirdparty/glad")
 find_package(OpenGL REQUIRED)
 
 #
@@ -193,6 +194,8 @@ endif()
 
 find_package(OpenGL REQUIRED)
 
+target_include_directories(Lunar PUBLIC thirdparty/glad)
+
 set(SDL3_INC "${SDL_DIR}/include")
 
 set(_SDL3_CANDIDATES
@@ -300,6 +303,8 @@ if(UNIX AND NOT APPLE)
 endif()
 
 
+target_link_libraries(Lunar PRIVATE glad)
+
 #
 # Actual compilation/linking steps!
 #
@@ -334,5 +339,5 @@ message(STATUS "   3D Renderer:      ${LUNAR_3DREND_MODULE}")
 message(STATUS "   ECS:              ${LUNAR_ECS_MODULE}")
 message(STATUS "   Shaders:          ${LUNAR_SHADER_MODULE}")
 message(STATUS "====================================")
-message(STATUS "If shaders are ON, use GLSL Version 1.2!")
+message(STATUS "If shaders are ON, use GLSL Version 120!")
 message(STATUS "")
