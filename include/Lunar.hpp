@@ -53,10 +53,6 @@
     #include "Lunar/LogSystem.hpp"
 #endif
 
-#ifdef LUNAR_LUA_ENABLED
-    #include "Lunar/LunarLua.hpp"
-#endif
-
 #ifdef LUNAR_SHADERS_ENABLED
     #include "Lunar/ShaderSystem.hpp"
     #include "Lunar/ShaderProgram.hpp"

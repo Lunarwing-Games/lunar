@@ -32,36 +32,5 @@ cp -v .deps/imgui/*.cpp thirdparty/imgui/ || true
 cp -v .deps/imgui/*.h thirdparty/imgui/ || true
 cp -rv .deps/imgui/backends/* thirdparty/imgui/backends/ || true
 
-# Phase 3 -> Lua
-mkdir -p thirdparty/lua
-
-if [[ "$(uname)" == "Darwin" ]]; then
-    echo "macOS — using Homebrew Lua..."
-    if ! command -v brew >/dev/null 2>&1; then
-        echo "Homebrew not found! Please install it: https://brew.sh"
-        exit 1
-    fi
-
-    brew install lua || true
-
-    LUA_PREFIX=$(brew --prefix lua)
-    cp -v "$LUA_PREFIX/include/lua/lua.h" thirdparty/lua/
-    cp -v "$LUA_PREFIX/include/lua/lualib.h" thirdparty/lua/
-    cp -v "$LUA_PREFIX/include/lua/lauxlib.h" thirdparty/lua/
-    cp -v "$LUA_PREFIX/include/lua/luaconf.h" thirdparty/lua
-    sudo cp -v "$LUA_PREFIX/lib/liblua.dylib" thirdparty/lua/
-
-else
-    echo "Linux — cloning and building Lua..."
-    git clone --depth 1 https://github.com/lua/lua.git .deps/lua
-    pushd .deps/lua > /dev/null
-
-    make
-    cp -v lua.h lauxlib.h lualib.h luaconf.h ../../thirdparty/lua/
-    cp -v liblua.so ../../thirdparty/lua/
-
-    popd > /dev/null
-fi
-
 echo "Complete!"
 echo

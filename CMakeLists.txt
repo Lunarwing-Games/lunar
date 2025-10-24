@@ -3,6 +3,9 @@
 #
 # For a guide on configuration, check out CONFIGURING.md!
 # This is a monolithic CMakeLists so it can be a bit hard to read at first.
+#
+# GLAD PERMALINK:
+# https://gen.glad.sh/#generator=c&api=gl%3D2.1&profile=gl%3Dcore%2Cgles1%3Dcommon&options=HEADER_ONLY%2CLOADER
 
 cmake_minimum_required(VERSION 3.20)
 
@@ -20,7 +23,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # Fun compile options
 option(LUNAR_INTERNAL_LOGGING "Verbose internal logging subsystem." OFF)
-option(LUNAR_SCRIPT_MODULE "Lua module." OFF)
 option(LUNAR_LOGGING_MODULE "Log module for end-users." ON)
 option(LUNAR_2DREND_MODULE "2D rendering module." ON)
 option(LUNAR_3DREND_MODULE "3D rendering module." ON)
@@ -51,7 +53,6 @@ endif()
 
 set(IMGUI_DIR "${CMAKE_SOURCE_DIR}/thirdparty/imgui")
 set(SDL_DIR "${CMAKE_SOURCE_DIR}/thirdparty/sdl3")
-set(LUA_DIR "${CMAKE_SOURCE_DIR}/thirdparty/lua")
 set(GLAD_DIR "${CMAKE_SOURCE_DIR}/thirdparty/glad")
 find_package(OpenGL REQUIRED)
 
@@ -75,10 +76,6 @@ target_compile_definitions(Lunar PUBLIC
     LUNAR_VERSION_STRING="${PROJECT_VERSION}"
 )
 
-if(LUNAR_SCRIPT_MODULE)
-    target_compile_definitions(Lunar PUBLIC LUNAR_LUA_ENABLED)
-    message(STATUS "Lua enabled!")
-endif()
 if(LUNAR_LOGGING_MODULE)
     target_compile_definitions(Lunar PUBLIC LUNAR_LOG_ENABLED)
     message(STATUS "Logs enabled!")
@@ -156,7 +153,9 @@ else()
         add_compile_options(-Werror)
     endif()
 
-    target_compile_options(Lunar PRIVATE    -fno-rtti -fno-exceptions)
+    target_compile_options(Lunar PRIVATE
+        -frtti
+    )
     add_compile_options(-fdiagnostics-color=always)
 endif()
 
@@ -232,45 +231,6 @@ if(APPLE AND _SDL3_LIB MATCHES "\\.dylib$")
     # nothing extra needed; CMake will link the dylib path
 endif()
 
-if(LUNAR_SCRIPT_MODULE)
-    set(LUA_INC "${LUA_DIR}")
-
-    # Only accept static libs for link-time resolution
-    set(_LUA_CANDIDATES
-        "${LUA_DIR}/lua.lib"      # MSVC static or import for static
-        "${LUA_DIR}/liblua.a"     # mingw/clang
-        "${LUA_DIR}/liblua.so"    # *nix shared (still OK as link target)
-        "${LUA_DIR}/liblua.dylib" # macOS shared
-    )
-    set(_LUA_LIB "")
-    foreach(cand IN LISTS _LUA_CANDIDATES)
-        if(EXISTS "${cand}")
-            set(_LUA_LIB "${cand}")
-            break()
-        endif()
-    endforeach()
-
-    if(_LUA_LIB)
-        message(STATUS "Using prebuilt static Lua library: ${_LUA_LIB}")
-        add_library(Lua::Lua UNKNOWN IMPORTED)
-        set_target_properties(Lua::Lua PROPERTIES
-            IMPORTED_LOCATION "${_LUA_LIB}"
-            INTERFACE_INCLUDE_DIRECTORIES "${LUA_INC}"
-        )
-        target_link_libraries(Lunar PUBLIC Lua::Lua)
-    else()
-        message(STATUS "No static Lua library found — building Lua from source (batteries included)")
-        file(GLOB LUA_SRC "${LUA_DIR}/*.c")
-        add_library(Lunar_Lua STATIC ${LUA_SRC})
-        # Make sure these are compiled as C sources and see the headers
-        set_target_properties(Lunar_Lua PROPERTIES LINKER_LANGUAGE C)
-        target_include_directories(Lunar_Lua PUBLIC ${LUA_DIR})
-        # If Lua needs special defines (usually not), add here:
-        # target_compile_definitions(Lunar_Lua PRIVATE LUA_USE_C89)
-        target_link_libraries(Lunar PUBLIC Lunar_Lua)
-    endif()
-endif()
-
 set(IMGUI_CORE_SRC
     "${IMGUI_DIR}/imgui.cpp"
     "${IMGUI_DIR}/imgui_draw.cpp"
@@ -309,10 +269,6 @@ if(LUNAR_2DREND_MODULE OR LUNAR_3DREND_MODULE)
     target_link_libraries(Lunar PRIVATE OpenGL::GL)
 endif()
 
-if(LUNAR_SCRIPT_MODULE AND TARGET Lua::Lua)
-    target_link_libraries(Lunar PUBLIC Lua::Lua)
-endif()
-
 if(UNIX AND NOT APPLE)
     find_package(Threads REQUIRED)
     target_link_libraries(Lunar PRIVATE Threads::Threads)
@@ -345,7 +301,6 @@ message(STATUS " Platform:           ${LUNAR_PLATFORM}")
 message(STATUS " Compiler:           ${CMAKE_CXX_COMPILER_ID} ${CMAKE_CXX_COMPILER_VERSION}")
 message(STATUS " Build Type:         ${CMAKE_BUILD_TYPE}")
 message(STATUS " Modules:")
-message(STATUS "   Lua Script:       ${LUNAR_SCRIPT_MODULE}")
 message(STATUS "   Logging:          ${LUNAR_LOGGING_MODULE}")
 message(STATUS "   2D Renderer:      ${LUNAR_2DREND_MODULE}")
 message(STATUS "   3D Renderer:      ${LUNAR_3DREND_MODULE}")
@@ -353,6 +308,18 @@ message(STATUS "   ECS:              ${LUNAR_ECS_MODULE}")
 message(STATUS "   Shaders:          ${LUNAR_SHADER_MODULE}")
 message(STATUS "====================================")
 message(STATUS "If shaders are ON, use GLSL Version 120!")
+if(LUNAR_SHADER_MODULE)
+    message(STATUS "")
+    message(STATUS "Do not forget to vendor GLAD!")
+    message(STATUS "Site: https://gen.glad.sh")
+    message(STATUS "Params:")
+    message(STATUS "    gl -> 2.1 \"Core\"")
+    message(STATUS "    NO extensions")
+    message(STATUS "")
+    message(STATUS "Options:")
+    message(STATUS "    Header Only [X]")
+    message(STATUS "    Loader      [X]")
+endif()
 message(STATUS "")
 
 include(GNUInstallDirs)
@@ -369,9 +336,6 @@ install(DIRECTORY ${CMAKE_SOURCE_DIR}/thirdparty/glad/
         FILES_MATCHING PATTERN "*.h")
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/thirdparty/sdl3/include/
         DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/SDL3
-        FILES_MATCHING PATTERN "*.h")
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/thirdparty/lua/
-        DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/lua
         FILES_MATCHING PATTERN "*.h")
 
 # Lib install

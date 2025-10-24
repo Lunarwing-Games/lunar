@@ -2,7 +2,6 @@
 
 <!-- Language badges are pretty cool, license and docs too -->
 ![Built with C++](https://img.shields.io/badge/Built_with-C%2B%2B-pink?logo=cplusplus&logoColor=%23FFFFFF)
-![Scripting with Lua](https://img.shields.io/badge/Scripting_with-Lua-blue?logo=lua&logoColor=%23FFFFFF)
 ![License: LGPLv3](https://img.shields.io/badge/License-LGPLv3-green?logo=gnu&logoColor=%23FFFFFF)
 ![Docs: Doxygen](https://img.shields.io/badge/Docs-Doxygen-blueviolet?logo=readthedocs&logoColor=%23FFFFFF)
 
@@ -17,14 +16,13 @@
 ---
 
 Welcome to the *canonical* repository for **Lunar**, the in-house game development framework used by [Lunarwing Games](https://github.com/Lunarwing-Games).  
-Lunar is written in modern C++ and supports optional **Lua scripting** for game logic.  
+Lunar is written in modern C++. 
 
 While optimized for **2D development** by default, Lunar is capable of **3D rendering** for games development.
 
 ## Features
 
 - Modular and lightweight C++ framework
-- Lua integration for flexible runtime scripting
 - Cross-platform support (Windows, Linux, macOS)
 - 2D rendering API built on top of modern graphics backends
 - Input, audio, timing, and filesystem utilities
@@ -34,6 +32,9 @@ While optimized for **2D development** by default, Lunar is capable of **3D rend
 
 ## How to Build (Source + Docs)
 <!-- Docs use Doxygen, since that's fast and really good for organizing -->
+
+> [!NOTE]
+> You may need to change some of the directories coded into the `CMakeLists.txt` file! It expects the Steamworks SDK (not available through Lunar) to be at the users HOME directory. You may need to change that to fit your environment!
 
 **Source Code:**
 ```bash
@@ -71,7 +72,6 @@ This means you can use and link Lunar in both **open and closed-source projects*
 ## Third-Parties
 
 Lunar uses the following open-source software:
- * Lua $\rightarrow$ MIT license $\rightarrow$ © 1994–2025 PUC-Rio, [lua.org](https://lua.org)
  * SDL3 $\rightarrow$ zlib license $\rightarrow$ © 1997–2025 Sam Lantinga
  * ImGui $\rightarrow$ MIT license $\rightarrow$ © 2014–2025 Ocornut
 
