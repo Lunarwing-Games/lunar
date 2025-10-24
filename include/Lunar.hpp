@@ -26,16 +26,9 @@
     #error "Lunar requires C++20 at the minimum!"
 #endif
 
-#if defined(_WIN32) || defined(_WIN64)
-    #define LUNAR_PLATFORM "Win32"
-#elif defined(__APPLE__)
-    #define LUNAR_PLATFORM "MacOS"
-#elif defined(__linux__)
-    #define LUNAR_PLATFORM "Linux"
-#else
-    #warning "Unknown OS environment!"
-    #define LUNAR_PLATFORM "Unknown"
-#endif
+// The Diag module is ALWAYS included, you can remove it at your own risk.
+// It provides important multiplatform diagnostic features for Lunar.
+#include "Lunar/Diagnostics.hpp"
 
 #ifdef LUNAR_2DRENDER_ENABLED
     #include "Lunar/2DRenderer.hpp"
