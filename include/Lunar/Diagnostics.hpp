@@ -104,7 +104,7 @@ namespace Lunar::InternalLog
             case ILogLevel::IWarn:  return "Internal WARN";
             case ILogLevel::IError: return "Internal ERROR";
             case ILogLevel::IFatal: return "Internal FATAL";
-            default:              return "Internal UNKNOWN";
+            default:                return "Internal UNKNOWN";
         }
     }
 
