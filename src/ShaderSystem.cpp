@@ -20,7 +20,8 @@ namespace Lunar::Graphics
     Shader::Shader(Type type, const std::string &source)
         : m_Type(type), m_Source(source)
     {
-        GLenum glType = (type == Type::Vertex) ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER;
+        // GLenum glType = (type == Type::Vertex) ? GL_VERTEX_SHADER : GL_FRAGMENT_SHADER;
+        GLenum glType = ToGLShaderType(type);
         m_ID = glCreateShader(glType);
 
         if (!m_ID)

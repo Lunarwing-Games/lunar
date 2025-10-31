@@ -12,6 +12,9 @@
 #include "glad/gl.h"
 #include "SDL3/SDL.h"
 
+// Remember, this targets OpenGL 2.0 from April 2004
+// Shaders are going to be written using '#version 110' !!
+
 namespace Lunar::Graphics
 {
 
@@ -20,10 +23,19 @@ namespace Lunar::Graphics
     public:
         enum class Type { Vertex, Fragment };
 
+        /// @brief Shader constructor
+        /// @param type What type of shader is being built
+        /// @param source Shader source code; (.vert) or (.frag)
         Shader(Type type, const std::string &source);
+
         ~Shader();
 
+        /// @brief Compiles the shader
+        /// @return boolean
         bool Compile();
+
+        /// @brief Constant function to get the shaders ID.
+        /// @return `GLuint` of the ID
         GLuint ID() const noexcept { return m_ID; }
 
     private:

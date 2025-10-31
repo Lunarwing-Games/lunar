@@ -16,8 +16,6 @@
  *       are defined at config time with the provided CMakeLists.txt.
  */
 
-#include <string>
-
 #ifndef __cplusplus
     #error "Lunar MUST be compiled with a C++ compiler!"
 #endif
@@ -44,6 +42,15 @@
 
 #ifdef LUNAR_LOG_ENABLED
     #include "Lunar/LogSystem.hpp"
+#endif
+
+#ifdef LUNAR_LUA_ENABLED
+    #include "Lunar/LuaSystem.hpp"
+#endif
+
+// Coming soon!
+#ifdef LUNAR_UI_ENABLED
+    #include "Lunar/UISystem.hpp"
 #endif
 
 #ifdef LUNAR_SHADERS_ENABLED
