@@ -47,7 +47,6 @@
 #elif defined(__arm__)
     #define LUNAR_ARCH "ARM"
 #else
-    #error "Unknown architecture!"
     #define LUNAR_ARCH "Unknown"
 #endif
 

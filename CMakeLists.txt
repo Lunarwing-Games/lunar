@@ -30,6 +30,8 @@ option(LUNAR_PEDANTIC_COMPILE "Enables highest level of compilation warnings" OF
 option(LUNAR_ERROR_ON_WARN "Treats all warnings as errors." OFF)
 option(LUNAR_BUILD_TESTS "Builds tests for Lunar." OFF)
 option(LUNAR_SHADER_MODULE "Enables OpenGL shaders." ON)
+option(LUNAR_UI_MODULE "Enables builtin UI systems." OFF)
+option(LUNAR_LUA_MODULE "Enables the Lua VM." OFF)
 
 if(LUNAR_PEDANTIC_COMPILE)
     message(STATUS "Setting pedantic compilation...")
@@ -50,7 +52,12 @@ if(LUNAR_ERROR_ON_WARN)
     endif()
 endif()
 
-set(IMGUI_DIR "${CMAKE_SOURCE_DIR}/thirdparty/imgui")
+if(LUNAR_UI_MODULE)
+    set(IMGUI_DIR "${CMAKE_SOURCE_DIR}/thirdparty/imgui")
+else()
+    set(IMGUI_DIR "")
+endif()
+
 set(SDL_DIR "${CMAKE_SOURCE_DIR}/thirdparty/sdl3")
 set(GLAD_DIR "${CMAKE_SOURCE_DIR}/thirdparty/glad")
 find_package(OpenGL REQUIRED)
@@ -227,29 +234,35 @@ if(APPLE AND _SDL3_LIB MATCHES "\\.dylib$")
     # nothing extra needed; CMake will link the dylib path
 endif()
 
-set(IMGUI_CORE_SRC
-    "${IMGUI_DIR}/imgui.cpp"
-    "${IMGUI_DIR}/imgui_draw.cpp"
-    "${IMGUI_DIR}/imgui_tables.cpp"
-    "${IMGUI_DIR}/imgui_widgets.cpp"
-)
-set(IMGUI_BACKENDS_SRC "")
-if(LUNAR_2DREND_MODULE OR LUNAR_3DREND_MODULE)
+if(LUNAR_UI_MODULE)
+    set(IMGUI_CORE_SRC
+        "${IMGUI_DIR}/imgui.cpp"
+        "${IMGUI_DIR}/imgui_draw.cpp"
+        "${IMGUI_DIR}/imgui_tables.cpp"
+        "${IMGUI_DIR}/imgui_widgets.cpp"
+    )
+    set(IMGUI_BACKENDS_SRC "")
+else()
+    set(IMGUI_CORE_SRC "")
+    set(IMGUI_BACKENDS_SRC "")
+endif()
+
+if(LUNAR_2DREND_MODULE OR LUNAR_3DREND_MODULE AND LUNAR_UI_MODULE)
     list(APPEND IMGUI_BACKENDS_SRC
         "${IMGUI_DIR}/backends/imgui_impl_sdl3.cpp"
         "${IMGUI_DIR}/backends/imgui_impl_opengl2.cpp"
     )
+    add_library(imgui STATIC ${IMGUI_CORE_SRC} ${IMGUI_BACKENDS_SRC})
+    add_library(ImGui::imgui ALIAS imgui)
+    target_include_directories(imgui PUBLIC
+        "${IMGUI_DIR}"
+        "${IMGUI_DIR}/backends"
+    )
 endif()
 
-add_library(imgui STATIC ${IMGUI_CORE_SRC} ${IMGUI_BACKENDS_SRC})
-add_library(ImGui::imgui ALIAS imgui)
 
-target_include_directories(imgui PUBLIC
-    "${IMGUI_DIR}"
-    "${IMGUI_DIR}/backends"
-)
 
-if(LUNAR_2DREND_MODULE OR LUNAR_3DREND_MODULE)
+if(LUNAR_2DREND_MODULE OR LUNAR_3DREND_MODULE AND LUNAR_UI_MODULE)
     target_link_libraries(imgui PRIVATE SDL3::SDL3 OpenGL::GL)
     if(APPLE)
     endif()
@@ -302,6 +315,8 @@ message(STATUS "   2D Renderer:      ${LUNAR_2DREND_MODULE}")
 message(STATUS "   3D Renderer:      ${LUNAR_3DREND_MODULE}")
 message(STATUS "   ECS:              ${LUNAR_ECS_MODULE}")
 message(STATUS "   Shaders:          ${LUNAR_SHADER_MODULE}")
+message(STATUS "   UI:               ${LUNAR_UI_MODULE}")
+message(STATUS "   Lua:              ${LUNAR_LUA_MODULE}")
 message(STATUS "====================================")
 message(STATUS "If shaders are ON, use GLSL Version 120!")
 if(LUNAR_SHADER_MODULE)
